@@ -1,0 +1,480 @@
+<title>Claude VPN Proxy</title>
+<style>
+  :root {
+    /* Layout: historia de una sola columna, ancho de lectura, con un
+       diagrama de dos caminos como eje visual (trafico normal vs tunel
+       dedicado). Tarjetas numeradas para la instalacion. */
+    --bg: #F3F5F7;
+    --fg: #1C232B;
+    --muted: #5B6672;
+    --surface: #FFFFFF;
+    --border: #D7DEE5;
+    --accent: #B5651D;
+    --accent-ink: #FFFFFF;
+    --path-normal: #64748B;
+    --path-tunnel: #B5651D;
+    --warn-bg: #FBF0E3;
+    --warn-border: #E7C9A0;
+    --ok-bg: #EAF3EC;
+    --ok-border: #BBDCC4;
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #11161D;
+      --fg: #E7EAEE;
+      --muted: #94A1AF;
+      --surface: #1A212B;
+      --border: #2A3340;
+      --accent: #E2963F;
+      --accent-ink: #1A1206;
+      --path-normal: #8694A6;
+      --path-tunnel: #E2963F;
+      --warn-bg: #2A2015;
+      --warn-border: #4A3A20;
+      --ok-bg: #16231A;
+      --ok-border: #2C4A36;
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #11161D;
+    --fg: #E7EAEE;
+    --muted: #94A1AF;
+    --surface: #1A212B;
+    --border: #2A3340;
+    --accent: #E2963F;
+    --accent-ink: #1A1206;
+    --path-normal: #8694A6;
+    --path-tunnel: #E2963F;
+    --warn-bg: #2A2015;
+    --warn-border: #4A3A20;
+    --ok-bg: #16231A;
+    --ok-border: #2C4A36;
+    color-scheme: dark;
+  }
+
+  @font-face {
+    font-family: 'JetBrains Mono Fallback';
+    src: local('Consolas'), local('Menlo'), local('monospace');
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    margin: 0;
+    padding-inline: 20px;
+    padding-block: 32px;
+    font-family: 'Public Sans', -apple-system, 'Segoe UI', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .page {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--path-tunnel);
+    background: color-mix(in srgb, var(--path-tunnel) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--path-tunnel) 35%, transparent);
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+
+  h1 {
+    font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
+    font-size: clamp(28px, 5vw, 40px);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    margin: 14px 0 6px;
+  }
+
+  .subtitle {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 56ch;
+    margin: 0 0 28px;
+  }
+
+  h2 {
+    font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    margin: 52px 0 18px;
+    padding-top: 10px;
+  }
+
+  h2 .num {
+    color: var(--path-tunnel);
+    margin-right: 10px;
+  }
+
+  p { margin: 0 0 14px; }
+
+  .lede {
+    font-size: 17px;
+  }
+
+  figure {
+    margin: 24px 0;
+    padding: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+
+  figure svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  figcaption {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .requisitos {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+
+  .requisitos li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+
+  .requisitos .tick {
+    font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
+    color: var(--path-tunnel);
+    flex-shrink: 0;
+  }
+
+  .steps {
+    counter-reset: step;
+    display: grid;
+    gap: 14px;
+    margin: 0;
+  }
+
+  .step {
+    counter-increment: step;
+    position: relative;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    min-width: 0;
+  }
+
+  .step::before {
+    content: counter(step);
+    font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
+    font-size: 15px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--path-tunnel);
+    color: var(--accent-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+
+  .step strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .step .meta {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  code, .mono {
+    font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
+    font-size: 0.92em;
+    background: color-mix(in srgb, var(--fg) 7%, transparent);
+    padding: 1px 6px;
+    border-radius: 5px;
+  }
+
+  a { color: var(--path-tunnel); }
+  a:not(:hover) { text-decoration-thickness: 1px; }
+
+  .callout {
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 18px 0;
+    border: 1px solid var(--border);
+    font-size: 15px;
+  }
+
+  .callout.warn {
+    background: var(--warn-bg);
+    border-color: var(--warn-border);
+  }
+
+  .callout.ok {
+    background: var(--ok-bg);
+    border-color: var(--ok-border);
+  }
+
+  .callout strong { display: block; margin-bottom: 4px; }
+
+  .faq {
+    display: grid;
+    gap: 10px;
+  }
+
+  details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+
+  details summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  details summary::marker {
+    color: var(--path-tunnel);
+  }
+
+  details p:last-child { margin-bottom: 0; }
+  details p { margin-top: 10px; }
+
+  .tech-details {
+    margin-top: 10px;
+  }
+
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .tech-grid div {
+    background: color-mix(in srgb, var(--fg) 5%, transparent);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+
+  .tech-grid .k {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .tech-grid .v {
+    font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
+    font-size: 14px;
+  }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 480px) {
+    .step { grid-template-columns: 32px 1fr; gap: 12px; padding: 14px; }
+    .step::before { width: 26px; height: 26px; font-size: 13px; }
+  }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+
+<div class="page">
+
+  <span class="eyebrow">● Para Windows</span>
+  <h1>Claude VPN Proxy</h1>
+  <p class="subtitle lede">Solo Claude Desktop y Edge salen por una VPN dedicada. Todo lo demás en tu computadora sigue exactamente igual que siempre.</p>
+
+  <h2><span class="num">01</span>¿Para qué es esto?</h2>
+  <p>En algunas redes, Claude no logra conectarse sin usar una VPN. El problema es que prender una VPN para <em>toda</em> la computadora hace que otras aplicaciones (videollamadas, juegos, lo que sea) se vuelvan más lentas o se comporten raro, aunque no necesiten la VPN para nada.</p>
+  <p>Este instalador resuelve eso de una vez: arma un túnel VPN que usan únicamente Claude Desktop y Microsoft Edge. El resto de tus programas, tu navegador si usas otro, tu correo, todo sigue por tu conexión normal, sin tocar nada.</p>
+
+  <h2><span class="num">02</span>Cómo funciona</h2>
+  <figure>
+    <svg viewBox="0 0 680 230" role="img" aria-label="Diagrama: desde tu PC, las demas aplicaciones salen directo a tu conexion normal a internet; Claude Desktop y Edge salen por un tunel VPN dedicado hacia internet a traves del proveedor VPN.">
+      <defs>
+        <marker id="arrow-normal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--path-normal)"/>
+        </marker>
+        <marker id="arrow-tunnel" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--path-tunnel)"/>
+        </marker>
+      </defs>
+
+      <!-- Tu PC -->
+      <rect x="10" y="85" width="110" height="60" rx="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <text x="65" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="currentColor">Tu PC</text>
+      <text x="65" y="128" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.7">(Windows)</text>
+
+      <!-- ruta normal -->
+      <line x1="120" y1="98" x2="270" y2="40" stroke="var(--path-normal)" stroke-width="2" marker-end="url(#arrow-normal)"/>
+      <rect x="275" y="14" width="200" height="52" rx="10" fill="none" stroke="var(--path-normal)" stroke-width="1.5"/>
+      <text x="375" y="36" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--path-normal)">Otras apps</text>
+      <text x="375" y="52" text-anchor="middle" font-size="10.5" fill="var(--path-normal)">navegador, correo, lo demas</text>
+
+      <line x1="478" y1="40" x2="600" y2="40" stroke="var(--path-normal)" stroke-width="2" marker-end="url(#arrow-normal)"/>
+      <text x="539" y="30" text-anchor="middle" font-size="10" fill="var(--path-normal)">tráfico normal</text>
+      <text x="600" y="36" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--path-normal)">Internet</text>
+      <text x="600" y="50" text-anchor="middle" font-size="10" fill="var(--path-normal)">(tu conexión de siempre)</text>
+
+      <!-- ruta tunel -->
+      <line x1="120" y1="132" x2="270" y2="185" stroke="var(--path-tunnel)" stroke-width="2.5" marker-end="url(#arrow-tunnel)"/>
+      <rect x="275" y="159" width="200" height="52" rx="10" fill="none" stroke="var(--path-tunnel)" stroke-width="2"/>
+      <text x="375" y="181" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--path-tunnel)">Claude Desktop + Edge</text>
+      <text x="375" y="197" text-anchor="middle" font-size="10.5" fill="var(--path-tunnel)">(solo con el acceso directo VPN)</text>
+
+      <line x1="478" y1="185" x2="600" y2="185" stroke="var(--path-tunnel)" stroke-width="2.5" marker-end="url(#arrow-tunnel)"/>
+      <text x="539" y="175" text-anchor="middle" font-size="10" font-weight="700" fill="var(--path-tunnel)">túnel VPN dedicado</text>
+      <text x="600" y="181" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--path-tunnel)">Internet</text>
+      <text x="600" y="195" text-anchor="middle" font-size="10" fill="var(--path-tunnel)">(vía tu proveedor VPN)</text>
+    </svg>
+    <figcaption>Un mismo PC, dos caminos: solo Claude Desktop y Edge usan el túnel VPN, el resto sale como siempre.</figcaption>
+  </figure>
+
+  <h2><span class="num">03</span>Antes de empezar</h2>
+  <ul class="requisitos">
+    <li><span class="tick">✓</span><span><strong>Windows 10 u 11.</strong> Vas a necesitar permisos de administrador, Windows te los va a pedir una sola vez durante la instalación.</span></li>
+    <li><span class="tick">✓</span><span><strong>El cliente oficial de WireGuard instalado.</strong> Es gratis: <a href="https://www.wireguard.com/install/" target="_blank" rel="noopener">wireguard.com/install</a>. Es el programa que realmente abre la conexión VPN, nuestro instalador solo lo configura.</span></li>
+    <li><span class="tick">✓</span><span><strong>Un archivo <code>.conf</code> de WireGuard.</strong> Es como la llave de acceso a un servidor VPN. Te lo da tu proveedor (por ejemplo, una cuenta gratuita de Proton VPN, sección de configuración manual / WireGuard). No tiene que ser Proton, cualquier proveedor que entregue un archivo WireGuard sirve.</span></li>
+    <li><span class="tick">✓</span><span><strong>El instalador <code>ClaudeVPNProxySetup.exe</code>.</strong> Te lo comparte quien te pasó este documento.</span></li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>Importante sobre el archivo .conf</strong>
+    Tiene que ser uno recién generado, no uno que ya usaste antes en otra computadora. Algunos proveedores (Proton incluido) solo muestran la clave privada completa la primera vez que la creas; si vuelves a descargar el mismo perfil después, puede venir oculta y el instalador no va a poder usarla. Si tienes dudas, genera un perfil nuevo.
+  </div>
+
+  <div class="callout warn">
+    <strong>Si usas la app de escritorio de Proton VPN (u otra VPN) normalmente</strong>
+    Ciérrala por completo (ícono de la bandeja incluido) antes de instalar y antes de usar los accesos directos "Claude (VPN)"/"Edge (VPN)". Esa app puede bloquear nuestro túnel por su cuenta sin avisar por qué. El instalador te va a avisar si la detecta corriendo.
+  </div>
+
+  <h2><span class="num">04</span>Instalación</h2>
+  <ol class="steps">
+    <li class="step">
+      <div>
+        <strong>Instala el cliente oficial de WireGuard</strong>
+        Si ya lo tienes, salta este paso.
+        <span class="meta">wireguard.com/install → descargar → siguiente, siguiente, listo.</span>
+      </div>
+    </li>
+    <li class="step">
+      <div>
+        <strong>Ejecuta <code>ClaudeVPNProxySetup.exe</code></strong>
+        Si Windows pregunta si quieres permitir que la app haga cambios, acepta, es necesario para crear el túnel.
+      </div>
+    </li>
+    <li class="step">
+      <div>
+        <strong>Elige tu archivo .conf cuando te lo pida</strong>
+        El instalador te va a mostrar un botón "Elegir...", busca el archivo que te dio tu proveedor VPN.
+      </div>
+    </li>
+    <li class="step">
+      <div>
+        <strong>Espera a que termine</strong>
+        Toma unos segundos. Al final te va a avisar que todo quedó listo.
+      </div>
+    </li>
+    <li class="step">
+      <div>
+        <strong>Usa los accesos directos nuevos</strong>
+        Vas a ver "Claude (VPN)" y "Edge (VPN)" en el escritorio y en el Menú Inicio. Esos son los que usan el túnel dedicado.
+        <span class="meta">El Claude Desktop y el Edge que ya tenías siguen funcionando igual que antes, sin VPN, por si los necesitas así.</span>
+      </div>
+    </li>
+  </ol>
+
+  <h2><span class="num">05</span>Uso diario</h2>
+  <p>Nada más que recordar: abre Claude y Edge siempre desde los accesos directos <strong>"Claude (VPN)"</strong> y <strong>"Edge (VPN)"</strong>. El resto de tu computadora, incluyendo cualquier otro navegador o programa, no cambia en absoluto.</p>
+
+  <h2><span class="num">06</span>Si algo sale mal</h2>
+  <div class="faq">
+    <details>
+      <summary>Dice "Claude Desktop ya está corriendo sin el proxy"</summary>
+      <p>Claude solo permite una ventana abierta a la vez. Si ya tenías una sesión abierta (o se abrió sola al encender la PC), ciérrala por completo, incluyendo el ícono en la bandeja junto al reloj, y vuelve a abrir con el acceso directo "Claude (VPN)".</p>
+    </details>
+    <details>
+      <summary>El instalador dice que la clave privada es inválida o está enmascarada</summary>
+      <p>Significa que el archivo .conf que elegiste ya se había usado antes y tu proveedor lo mostró con la clave oculta. Pide o genera un perfil <strong>nuevo</strong> en tu proveedor VPN y vuelve a intentar con ese archivo.</p>
+    </details>
+    <details>
+      <summary>Claude o Edge se quedan "pensando" y nunca conectan, sin ningún mensaje de error</summary>
+      <p>Revisa si tienes la app de escritorio de Proton VPN (u otra VPN) abierta. Su propio firewall puede bloquear nuestro túnel sin avisar. Ciérrala por completo, icono de la bandeja incluido, y vuelve a intentar.</p>
+    </details>
+    <details>
+      <summary>Dice que no encuentra WireGuard instalado</summary>
+      <p>Instala primero el cliente oficial desde <a href="https://www.wireguard.com/install/" target="_blank" rel="noopener">wireguard.com/install</a> y vuelve a correr el instalador.</p>
+    </details>
+    <details>
+      <summary>Quiero quitar todo y empezar de cero</summary>
+      <p>Ve a "Agregar o quitar programas" de Windows y busca "Claude VPN Proxy", o usa el acceso directo "Desinstalar" dentro de la carpeta "Claude VPN Proxy" del Menú Inicio. Eso quita el túnel, el proxy y los accesos directos por completo, puedes volver a instalar después sin problema.</p>
+    </details>
+    <details>
+      <summary>¿Esto ve o guarda lo que escribo en Claude o en Edge?</summary>
+      <p>No. Solo decide por qué camino de red sale la información, igual que cualquier VPN normal. No lee, guarda ni modifica el contenido de lo que escribes o navegas.</p>
+    </details>
+  </div>
+
+  <h2><span class="num">07</span>Para quien quiera los detalles técnicos</h2>
+  <details class="tech-details">
+    <summary>Qué hace el instalador exactamente</summary>
+    <p>Instala el túnel WireGuard como un servicio de Windows (arranca solo, sin intervención), agrega una ruta de red con prioridad muy baja para que nadie más la use por accidente, y deja corriendo un programa pequeño propio que ata el tráfico de Claude/Edge a esa interfaz de red específica. No instala ningún driver de intercepción ni toca la configuración de red del resto del sistema.</p>
+    <div class="tech-grid">
+      <div><span class="k">Nombre del túnel</span><span class="v">ClaudeVPN</span></div>
+      <div><span class="k">Puerto del proxy local</span><span class="v">127.0.0.1:18080</span></div>
+      <div><span class="k">Carpeta de instalación</span><span class="v">C:\Program Files\ClaudeVPNProxy</span></div>
+      <div><span class="k">Métrica de la ruta</span><span class="v">9999 (muy baja prioridad)</span></div>
+    </div>
+  </details>
+
+  <footer>
+    Herramienta independiente. No es un producto oficial de Anthropic ni de ningún proveedor de VPN.
+  </footer>
+
+</div>

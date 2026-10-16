@@ -1,0 +1,6 @@
+# Binarios: se publican en GitHub Releases, no en el repo. Se regeneran con build.sh.
+*.exe
+.old-*/
+resultados.txt
+# Notas internas de la sesion de desarrollo
+HANDOFF.json
