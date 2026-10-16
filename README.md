@@ -1,6 +1,6 @@
-# Claude VPN Proxy (Windows): Claude Desktop + Edge por un túnel VPN dedicado, sin tocar el resto del sistema
+# Claude VPN Proxy (Windows): Claude Desktop por un túnel VPN dedicado, sin tocar el resto del sistema
 
-Equivalente para Windows de lo que se armó en Linux con `network namespace` (ver `../claude-proton-netns/`): solo Claude Desktop y Edge salen por un túnel VPN dedicado, todo lo demás en la PC sigue por la conexión normal.
+Equivalente para Windows de lo que se armó en Linux con `network namespace` (ver `../claude-proton-netns/`): solo Claude Desktop sale por un túnel VPN dedicado, todo lo demás en la PC sigue por la conexión normal.
 
 **No está atado a Proton.** Funciona con el `.conf` de WireGuard de cualquier proveedor compatible: Proton, Mullvad, un servidor propio, el que sea. Se llamó "Proton" en las primeras pruebas porque fue el proveedor usado para probarlo, pero el diseño es genérico.
 
@@ -14,9 +14,11 @@ La alternativa sin ningún driver de terceros: el **cliente oficial de WireGuard
 
 Como el túnel no tiene ninguna ruta por sí solo, hace falta:
 1. Una ruta secundaria de métrica altísima (vía `netsh interface ipv4 add route`) para que exista *alguna* ruta hacia internet por esa interfaz (si no, cualquier intento de usarla falla con "red inalcanzable").
-2. Algo que fuerce el tráfico de Claude/Edge específicamente por esa interfaz. Como esa ruta tiene métrica altísima, nadie más la usa por accidente.
+2. Algo que fuerce el tráfico de Claude específicamente por esa interfaz. Como esa ruta tiene métrica altísima, nadie más la usa por accidente.
 
-Eso último se resuelve en espacio de usuario con `IP_UNICAST_IF` (API nativa de Winsock, sin ningún driver), en un proxy HTTP local propio (`claude_proxy.exe`), combinado con que Claude Desktop y Edge **ya saben usar un proxy por sí solos** (Claude Desktop respeta `HTTPS_PROXY`/`HTTP_PROXY` y además el flag `--proxy-server`; Edge/Chromium acepta `--proxy-server`). No hace falta interceptar nada a la fuerza.
+Eso último se resuelve en espacio de usuario con `IP_UNICAST_IF` (API nativa de Winsock, sin ningún driver), en un proxy HTTP local propio (`claude_proxy.exe`), combinado con que Claude Desktop **ya sabe usar un proxy por sí solo** (respeta `HTTPS_PROXY`/`HTTP_PROXY` y además el flag `--proxy-server`). No hace falta interceptar nada a la fuerza.
+
+Versiones anteriores incluían también un lanzador para Edge. Se quitó porque para el navegador basta la extensión que ofrecen la mayoría de proveedores VPN, sin necesidad de este proxy.
 
 **Límite aceptado:** esto solo cubre apps que acepten configurarse con un proxy. Una app que no soporte nada de eso necesitaría volver a algo tipo driver (Proxifier de pago, ya que Netch quedó descartado).
 
@@ -40,7 +42,7 @@ Esto confirma de punta a punta: el aislamiento de rutas funciona como se diseñ�
 
 ## Requisito importante: cerrar la app oficial de Proton (u otra VPN GUI) antes de usar esto
 
-Si normalmente usas la app de escritorio de tu proveedor VPN (Proton VPN, por ejemplo) para otras cosas, **ciérrala por completo** (ícono de la bandeja incluido) antes de instalar o de usar los accesos directos "Claude (VPN)"/"Edge (VPN)". Confirmado en pruebas reales: esa app puede usar la misma dirección IP interna que nuestro túnel (`10.2.0.2`, dando "El objeto ya existe" al instalar el servicio), y su propio kill-switch/firewall bloquea tráfico por cualquier interfaz que no sea la suya, lo que hace que nuestro proxy falle con `502 Bad Gateway` sin ninguna pista de por qué. El instalador ahora detecta si hay un proceso `ProtonVPN` corriendo y te avisa antes de continuar.
+Si normalmente usas la app de escritorio de tu proveedor VPN (Proton VPN, por ejemplo) para otras cosas, **ciérrala por completo** (ícono de la bandeja incluido) antes de instalar o de usar el acceso directo "Claude (VPN)". Confirmado en pruebas reales: esa app puede usar la misma dirección IP interna que nuestro túnel (`10.2.0.2`, dando "El objeto ya existe" al instalar el servicio), y su propio kill-switch/firewall bloquea tráfico por cualquier interfaz que no sea la suya, lo que hace que nuestro proxy falle con `502 Bad Gateway` sin ninguna pista de por qué. El instalador ahora detecta si hay un proceso `ProtonVPN` corriendo y te avisa antes de continuar.
 
 ## Fixes reales encontrados probando en Windows (ya integrados)
 
@@ -58,7 +60,6 @@ Si normalmente usas la app de escritorio de tu proveedor VPN (Proton VPN, por ej
 | `src/claude_proxy.c` / `.exe` | Proxy HTTP local (CONNECT + HTTP plano). Resuelve el índice de la interfaz WireGuard por su nombre y fija ahí cada socket saliente con `IP_UNICAST_IF`. |
 | `src/prep_conf.c` / `.exe` | Copia el `.conf` inyectando `Table = off` si no está ya (idempotente), y valida que la clave privada no venga enmascarada. |
 | `nsis/launch-claude.cmd` | Pone `HTTPS_PROXY`/`HTTP_PROXY` + `--proxy-server`, detecta instancia ya corriendo, detecta instalación MSIX vs. Squirrel, y lanza Claude Desktop sin depender de la carpeta versionada `app-X.Y.Z`. |
-| `nsis/launch-edge.cmd` | Lanza `msedge.exe --proxy-server=127.0.0.1:18080`, resolviendo la ruta vía el registro `App Paths` (mecanismo oficial de Windows para esto). |
 | `nsis/installer.nsi` | El instalador: pide el `.conf`, instala el túnel como servicio (`wireguard.exe /installtunnelservice`), agrega la ruta, borra el arranque automático del proxy de versiones anteriores (ahora lo levantan los accesos directos y se cierra solo al cerrar las apps), y los accesos directos. Incluye desinstalador (`uninstall.exe`, generado automáticamente por NSIS) y es idempotente (se puede volver a correr sin desinstalar antes). |
 | `nsis/ClaudeVPNProxySetup.exe` | El `.exe` ya compilado. |
 | `nsis/reparar.ps1` | Script de reparación sin reinstalar todo: útil si solo cambiaste de `.conf` o algo quedó a medias. `powershell -ExecutionPolicy Bypass -File reparar.ps1 -Conf <ruta al .conf nuevo>` (como admin). |
@@ -78,5 +79,4 @@ Si prefieres no reinstalar desde cero para solo cambiar de `.conf`, usa `reparar
 4. Verificar que el túnel quedó arriba: `wg show` o el propio cliente de WireGuard debería mostrar la interfaz `ClaudeVPN` conectada.
 5. Verificar que el resto de Windows sigue con tu IP normal: abre cualquier navegador normal (sin el acceso directo) y entra a algo como `ifconfig.co` o `whatismyip.com`.
 6. Usar el acceso directo "Claude (VPN)" y, dentro de Claude, confirmar que conecta. Si Claude Desktop ya estaba abierto, ciérralo del todo primero (icono de la bandeja incluido).
-7. Lo mismo con "Edge (VPN)".
-8. Si algo falla, los `.cmd` y el instalador imprimen mensajes en español explicando qué falló.
+7. Si algo falla, los `.cmd` y el instalador imprimen mensajes en español explicando qué falló.

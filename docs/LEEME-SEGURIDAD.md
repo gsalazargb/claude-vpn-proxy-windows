@@ -4,7 +4,7 @@ Este documento describe todo lo que el instalador y sus componentes hacen en el 
 
 ## Qué hace, en una frase
 
-Crea un túnel WireGuard con el `.conf` que el propio usuario proporciona, usando el cliente oficial de WireGuard, y un proxy local que solo escucha en `127.0.0.1:18080`. Claude Desktop y Edge se lanzan apuntando a ese proxy, así que solo su tráfico sale por el túnel. El resto del equipo no se toca.
+Crea un túnel WireGuard con el `.conf` que el propio usuario proporciona, usando el cliente oficial de WireGuard, y un proxy local que solo escucha en `127.0.0.1:18080`. Claude Desktop se lanza apuntando a ese proxy, así que solo su tráfico sale por el túnel. El resto del equipo no se toca.
 
 ## Componentes
 
@@ -13,20 +13,20 @@ Crea un túnel WireGuard con el `.conf` que el propio usuario proporciona, usand
 | `ClaudeVPNProxySetup.exe` | Instalador NSIS, requiere admin | Ejecuta los pasos de la sección "Cambios en el sistema". Fuente: `nsis/installer.nsi`. |
 | `claude_proxy.exe` | Proxy HTTP, corre como el usuario y sin ventana | Escucha solo en `127.0.0.1`. Atiende `CONNECT host:puerto` (HTTPS) y HTTP plano, y abre la conexión de salida atada a la interfaz `ClaudeVPN` con `IP_UNICAST_IF`. No descifra, no inspecciona ni guarda tráfico. Su único archivo es un log de diagnóstico en `%LOCALAPPDATA%\ClaudeVPNProxy\claude_proxy.log` (destinos y errores de conexión, sin contenido), que se reinicia en cada arranque. Fuente: `src/claude_proxy.c` (587 líneas). |
 | `prep_conf.exe` | Utilidad de texto | Copia el `.conf` agregando `Table = off` y valida que la clave privada no venga enmascarada. Solo lee un archivo y escribe otro. Fuente: `src/prep_conf.c` (158 líneas). |
-| `launch-claude.cmd`, `launch-edge.cmd` | Scripts de texto | Arrancan `claude_proxy.exe` si no está corriendo y lanzan Claude Desktop o Edge con `--proxy-server=127.0.0.1:18080`. Son texto plano, se leen tal cual. |
+| `launch-claude.cmd` | Script de texto | Arranca `claude_proxy.exe` si no está corriendo y lanza Claude Desktop con `--proxy-server=127.0.0.1:18080`. Son texto plano, se leen tal cual. |
 
 ## Cambios en el sistema
 
 Instalación:
 
 1. Verifica que el cliente oficial de WireGuard esté instalado. No lo descarga ni lo empaqueta.
-2. Copia los cuatro archivos de arriba a `C:\Program Files\ClaudeVPNProxy\`.
+2. Copia los tres archivos de arriba a `C:\Program Files\ClaudeVPNProxy\`.
 3. Copia el `.conf` del usuario a `C:\Program Files\ClaudeVPNProxy\ClaudeVPN.conf` (con `Table = off`) y le quita los permisos heredados: solo Administradores y SYSTEM pueden leerlo, porque contiene la clave privada. Si no logra restringir los permisos, borra la copia y aborta.
 4. Instala el túnel como servicio con `wireguard.exe /installtunnelservice`.
 5. Agrega una ruta persistente `0.0.0.0/0` por la interfaz `ClaudeVPN` con métrica 9999, para que nunca gane frente a la ruta normal.
-6. Crea accesos directos "Claude (VPN)", "Edge (VPN)" y "Desinstalar".
+6. Crea accesos directos "Claude (VPN)" y "Desinstalar".
 
-El proxy no arranca con Windows. Lo levantan los accesos directos "Claude (VPN)" y "Edge (VPN)" justo antes de abrir la app, y se cierra solo cuando terminan todos los procesos que se conectaron a él (con 10 segundos de margen), o a los 2 minutos si nadie se conecta.
+El proxy no arranca con Windows. Lo levanta el acceso directo "Claude (VPN)" justo antes de abrir Claude, y se cierra solo cuando terminan todos los procesos que se conectaron a él (con 10 segundos de margen), o a los 2 minutos si nadie se conecta.
 
 La desinstalación revierte todos los pasos: borra la ruta, el servicio del túnel, el proceso, los accesos directos y los archivos.
 
@@ -50,7 +50,7 @@ Extraídas de la tabla de importaciones de los `.exe` distribuidos (`objdump -p`
 
 1. Extrae el instalador con 7-Zip (clic derecho, "Abrir archivo"). Así ves los archivos que va a copiar sin ejecutarlo.
 2. Compara el SHA-256 de cada archivo extraído con `SHA256SUMS.txt`. En PowerShell: `Get-FileHash .\claude_proxy.exe`.
-3. Los `.cmd` son texto: compáralos directamente con los de `nsis/`.
+3. `launch-claude.cmd` es texto: compáralo directamente con el de `nsis/`.
 4. Para confirmar que los `.exe` vienen de este código fuente, recompílalos con `build.sh` (ver `COMPILAR.md`). La compilación es reproducible: con las mismas versiones de herramientas, el SHA-256 del instalador y de cada `.exe` coincide exactamente con `SHA256SUMS.txt`.
 
 ## Consideraciones de seguridad

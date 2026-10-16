@@ -2,7 +2,7 @@
  * claude_proxy.c
  *
  * Proxy HTTP local minimalista para Windows. Recibe conexiones de UNA sola
- * app a la vez (Claude Desktop, Edge, lo que sea que se lance apuntando
+ * app a la vez (Claude Desktop, o lo que sea que se lance apuntando
  * HTTPS_PROXY/--proxy-server a este puerto) y fuerza la salida de esas
  * conexiones por una interfaz de red especifica (el tunel WireGuard
  * dedicado, de cualquier proveedor compatible con WireGuard: Proton,
@@ -27,7 +27,7 @@
  *
  * Ciclo de vida: se compila sin consola (-mwindows), asi que no abre ninguna
  * ventana; los mensajes van a %LOCALAPPDATA%\ClaudeVPNProxy\claude_proxy.log.
- * Lo arrancan los accesos directos "Claude (VPN)" / "Edge (VPN)" justo antes
+ * Lo arranca el acceso directo "Claude (VPN)" justo antes
  * de abrir la app. Por cada conexion entrante se averigua que proceso la
  * abrio (GetExtendedTcpTable) y el proxy se cierra solo cuando todos esos
  * procesos terminaron y no queda ninguna conexion abierta. Si nadie se

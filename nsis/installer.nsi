@@ -1,4 +1,4 @@
-; Instalador: tunel WireGuard DEDICADO solo a Claude Desktop y Edge, sin
+; Instalador: tunel WireGuard DEDICADO solo a Claude Desktop, sin
 ; tocar el resto del sistema. Funciona con el .conf de WireGuard de
 ; cualquier proveedor compatible (Proton, Mullvad, un servidor propio, etc),
 ; no esta atado a Proton especificamente. Ver README.md del proyecto para
@@ -35,7 +35,7 @@ Function ConfPageCreate
   nsDialogs::Create 1018
   Pop $0
 
-  ${NSD_CreateLabel} 0 0 100% 44u "Selecciona un archivo .conf de WireGuard (de Proton, Mullvad, tu propio servidor, o cualquier otro proveedor compatible con WireGuard). Este tunel quedara DEDICADO solo a Claude Desktop y Edge: el resto de tu PC sigue por tu conexion normal, sin ninguna VPN."
+  ${NSD_CreateLabel} 0 0 100% 44u "Selecciona un archivo .conf de WireGuard (de Proton, Mullvad, tu propio servidor, o cualquier otro proveedor compatible con WireGuard). Este tunel quedara DEDICADO solo a Claude Desktop: el resto de tu PC sigue por tu conexion normal, sin ninguna VPN."
   Pop $0
 
   ${NSD_CreateText} 0 40u 70% 12u ""
@@ -102,7 +102,6 @@ Section "Instalar"
   File "..\src\claude_proxy.exe"
   File "..\src\prep_conf.exe"
   File "launch-claude.cmd"
-  File "launch-edge.cmd"
 
   ; 0.1 Idempotencia: si ya habia un tunel/proxy de una instalacion anterior
   ;     (reinstalando sin haber desinstalado, o probando de nuevo tras un
@@ -157,20 +156,23 @@ Section "Instalar"
   Pop $0
 
   ; 4. El proxy local ya no arranca con el logon: lo levantan los accesos
-  ;    directos al abrir Claude/Edge y se cierra solo cuando esas apps se
+  ;    directos al abrir Claude y se cierra solo cuando Claude se
   ;    cierran. Se borra el acceso directo de Inicio de versiones anteriores.
   Delete "$SMSTARTUP\ClaudeVPNProxy.lnk"
 
   ; 5. Accesos directos para el usuario
   CreateDirectory "$SMPROGRAMS\Claude VPN Proxy"
   CreateShortcut "$SMPROGRAMS\Claude VPN Proxy\Claude (VPN).lnk" "$INSTDIR\launch-claude.cmd" "" "" "" SW_SHOWMINIMIZED
-  CreateShortcut "$SMPROGRAMS\Claude VPN Proxy\Edge (VPN).lnk" "$INSTDIR\launch-edge.cmd" "" "" "" SW_SHOWMINIMIZED
+  ; Versiones anteriores incluian un lanzador para Edge; ya no (para el
+  ; navegador basta la extension de la VPN). Se limpia si existe.
+  Delete "$SMPROGRAMS\Claude VPN Proxy\Edge (VPN).lnk"
+  Delete "$INSTDIR\launch-edge.cmd"
   CreateShortcut "$DESKTOP\Claude (VPN).lnk" "$INSTDIR\launch-claude.cmd" "" "" "" SW_SHOWMINIMIZED
 
   WriteUninstaller "$INSTDIR\uninstall.exe"
   CreateShortcut "$SMPROGRAMS\Claude VPN Proxy\Desinstalar.lnk" "$INSTDIR\uninstall.exe"
 
-  MessageBox MB_OK|MB_ICONINFORMATION "Listo. Usa los accesos directos 'Claude (VPN)' y 'Edge (VPN)' del Menu Inicio o del escritorio. Todo lo demas en tu PC sigue por tu conexion normal, sin tocar nada."
+  MessageBox MB_OK|MB_ICONINFORMATION "Listo. Usa el acceso directo 'Claude (VPN)' del Menu Inicio o del escritorio. Todo lo demas en tu PC sigue por tu conexion normal, sin tocar nada."
 SectionEnd
 
 ; ---------------------------------------------------------------------------

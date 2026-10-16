@@ -387,31 +387,32 @@
 
   <span class="eyebrow">● Para Windows</span>
   <h1>Claude VPN Proxy</h1>
-  <p class="subtitle lede">Solo Claude Desktop y Edge salen por una VPN dedicada. Todo lo demás en tu computadora sigue exactamente igual que siempre.</p>
+  <p class="subtitle lede">Solo Claude Desktop sale por una VPN dedicada. Todo lo demás en tu computadora sigue exactamente igual que siempre.</p>
 
   <section class="download" aria-label="Descarga">
     <div class="download-head">
-      <a class="btn" href="https://github.com/gsalazargb/claude-vpn-proxy-windows/releases/download/v1.0.0/ClaudeVPNProxySetup.exe">Descargar instalador</a>
-      <span class="version">v1.0.0 · pre-release · Windows 10 y 11</span>
+      <a class="btn" href="https://github.com/gsalazargb/claude-vpn-proxy-windows/releases/download/v1.1.0/ClaudeVPNProxySetup.exe">Descargar instalador</a>
+      <span class="version">v1.1.0 · pre-release · Windows 10 y 11</span>
     </div>
     <div class="download-links">
-      <a href="https://github.com/gsalazargb/claude-vpn-proxy-windows/releases/download/v1.0.0/ClaudeVPNProxy-Windows.zip">Paquete completo (.zip con guía y código fuente)</a>
-      <a href="https://github.com/gsalazargb/claude-vpn-proxy-windows/releases/tag/v1.0.0">Notas de la versión</a>
+      <a href="https://github.com/gsalazargb/claude-vpn-proxy-windows/releases/download/v1.1.0/ClaudeVPNProxy-Windows.zip">Paquete completo (.zip con guía y código fuente)</a>
+      <a href="https://github.com/gsalazargb/claude-vpn-proxy-windows/releases/tag/v1.1.0">Notas de la versión</a>
       <a href="https://github.com/gsalazargb/claude-vpn-proxy-windows">Código fuente en GitHub</a>
     </div>
     <div class="hash">
       SHA-256 del instalador, para confirmar que la descarga no fue alterada:
-      <code>803c0ec110310cb45a0cec9b56d78e741de2a1ed2f4c75ecd3cb244a712a4621</code>
+      <code>e4b6fc90326f42c9b4acb7e8d1252a5a93b2acc76a061865caa44ed839ac5489</code>
     </div>
   </section>
 
   <h2><span class="num">01</span>¿Para qué es esto?</h2>
   <p>En algunas redes, Claude no logra conectarse sin usar una VPN. El problema es que prender una VPN para <em>toda</em> la computadora hace que otras aplicaciones (videollamadas, juegos, lo que sea) se vuelvan más lentas o se comporten raro, aunque no necesiten la VPN para nada.</p>
-  <p>Este instalador resuelve eso de una vez: arma un túnel VPN que usan únicamente Claude Desktop y Microsoft Edge. El resto de tus programas, tu navegador si usas otro, tu correo, todo sigue por tu conexión normal, sin tocar nada.</p>
+  <p>Este instalador resuelve eso de una vez: arma un túnel VPN que usa únicamente Claude Desktop. El resto de tus programas, tu navegador, tu correo, todo sigue por tu conexión normal, sin tocar nada.</p>
+  <p>Para usar Claude en el navegador (claude.ai) no necesitas este instalador: la mayoría de proveedores VPN, Proton incluido, tienen una extensión de navegador que hace lo mismo solo para el navegador.</p>
 
   <h2><span class="num">02</span>Cómo funciona</h2>
   <figure>
-    <svg viewBox="0 0 680 230" role="img" aria-label="Diagrama: desde tu PC, las demas aplicaciones salen directo a tu conexion normal a internet; Claude Desktop y Edge salen por un tunel VPN dedicado hacia internet a traves del proveedor VPN.">
+    <svg viewBox="0 0 680 230" role="img" aria-label="Diagrama: desde tu PC, las demas aplicaciones salen directo a tu conexion normal a internet; Claude Desktop sale por un tunel VPN dedicado hacia internet a traves del proveedor VPN.">
       <defs>
         <marker id="arrow-normal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M0,0 L10,5 L0,10 z" fill="var(--path-normal)"/>
@@ -440,7 +441,7 @@
       <!-- ruta tunel -->
       <line x1="120" y1="132" x2="270" y2="185" stroke="var(--path-tunnel)" stroke-width="2.5" marker-end="url(#arrow-tunnel)"/>
       <rect x="275" y="159" width="200" height="52" rx="10" fill="none" stroke="var(--path-tunnel)" stroke-width="2"/>
-      <text x="375" y="181" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--path-tunnel)">Claude Desktop + Edge</text>
+      <text x="375" y="181" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--path-tunnel)">Claude Desktop</text>
       <text x="375" y="197" text-anchor="middle" font-size="10.5" fill="var(--path-tunnel)">(solo con el acceso directo VPN)</text>
 
       <line x1="478" y1="185" x2="600" y2="185" stroke="var(--path-tunnel)" stroke-width="2.5" marker-end="url(#arrow-tunnel)"/>
@@ -448,7 +449,7 @@
       <text x="600" y="181" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--path-tunnel)">Internet</text>
       <text x="600" y="195" text-anchor="middle" font-size="10" fill="var(--path-tunnel)">(vía tu proveedor VPN)</text>
     </svg>
-    <figcaption>Un mismo PC, dos caminos: solo Claude Desktop y Edge usan el túnel VPN, el resto sale como siempre.</figcaption>
+    <figcaption>Un mismo PC, dos caminos: solo Claude Desktop usa el túnel VPN, el resto sale como siempre.</figcaption>
   </figure>
 
   <h2><span class="num">03</span>Antes de empezar</h2>
@@ -466,7 +467,7 @@
 
   <div class="callout warn">
     <strong>Si usas la app de escritorio de Proton VPN (u otra VPN) normalmente</strong>
-    Ciérrala por completo (ícono de la bandeja incluido) antes de instalar y antes de usar los accesos directos "Claude (VPN)"/"Edge (VPN)". Esa app puede bloquear nuestro túnel por su cuenta sin avisar por qué. El instalador te va a avisar si la detecta corriendo.
+    Ciérrala por completo (ícono de la bandeja incluido) antes de instalar y antes de usar el acceso directo "Claude (VPN)". Esa app puede bloquear nuestro túnel por su cuenta sin avisar por qué. El instalador te va a avisar si la detecta corriendo.
   </div>
 
   <h2><span class="num">04</span>Instalación</h2>
@@ -499,16 +500,16 @@
     </li>
     <li class="step">
       <div>
-        <strong>Usa los accesos directos nuevos</strong>
-        Vas a ver "Claude (VPN)" y "Edge (VPN)" en el escritorio y en el Menú Inicio. Esos son los que usan el túnel dedicado.
-        <span class="meta">El Claude Desktop y el Edge que ya tenías siguen funcionando igual que antes, sin VPN, por si los necesitas así.</span>
+        <strong>Usa el acceso directo nuevo</strong>
+        Vas a ver "Claude (VPN)" en el escritorio y en el Menú Inicio. Ese es el que usa el túnel dedicado.
+        <span class="meta">El acceso directo normal de Claude Desktop sigue funcionando igual que antes, sin VPN, por si lo necesitas así.</span>
       </div>
     </li>
   </ol>
 
   <h2><span class="num">05</span>Uso diario</h2>
-  <p>Nada más que recordar: abre Claude y Edge siempre desde los accesos directos <strong>"Claude (VPN)"</strong> y <strong>"Edge (VPN)"</strong>. El resto de tu computadora, incluyendo cualquier otro navegador o programa, no cambia en absoluto.</p>
-  <p>No hay nada corriendo en segundo plano cuando no lo usas. Al abrir uno de esos accesos directos se enciende un proxy pequeño, sin ventana, y se apaga solo unos segundos después de que cierras Claude o Edge.</p>
+  <p>Nada más que recordar: abre Claude siempre desde el acceso directo <strong>"Claude (VPN)"</strong>. El resto de tu computadora, incluyendo cualquier otro navegador o programa, no cambia en absoluto.</p>
+  <p>No hay nada corriendo en segundo plano cuando no lo usas. Al abrir ese acceso directo se enciende un proxy pequeño, sin ventana, y se apaga solo unos segundos después de que cierras Claude.</p>
 
   <h2><span class="num">06</span>Si algo sale mal</h2>
   <div class="faq">
@@ -521,7 +522,7 @@
       <p>Significa que el archivo .conf que elegiste ya se había usado antes y tu proveedor lo mostró con la clave oculta. Pide o genera un perfil <strong>nuevo</strong> en tu proveedor VPN y vuelve a intentar con ese archivo.</p>
     </details>
     <details>
-      <summary>Claude o Edge se quedan "pensando" y nunca conectan, sin ningún mensaje de error</summary>
+      <summary>Claude se queda "pensando" y nunca conectan, sin ningún mensaje de error</summary>
       <p>Revisa si tienes la app de escritorio de Proton VPN (u otra VPN) abierta. Su propio firewall puede bloquear nuestro túnel sin avisar. Ciérrala por completo, icono de la bandeja incluido, y vuelve a intentar.</p>
     </details>
     <details>
@@ -529,8 +530,8 @@
       <p>El túnel no está activo. Abre WireGuard y revisa que el túnel <code>ClaudeVPN</code> aparezca como activo. Si sigue fallando, el detalle del error está en <code>%LOCALAPPDATA%\ClaudeVPNProxy\claude_proxy.log</code>: pégalo en el Explorador de archivos para abrirlo.</p>
     </details>
     <details>
-      <summary>Edge (VPN) se abre pero no usa el túnel</summary>
-      <p>Si ya tenías Edge abierto, el acceso directo solo abre una ventana más de ese Edge, que no pasa por el túnel. Cierra todas las ventanas de Edge y vuelve a abrirlo con "Edge (VPN)".</p>
+      <summary>Al iniciar sesión, Claude abre el navegador y la página no carga</summary>
+      <p>El inicio de sesión de Claude Desktop se hace en tu navegador, y el navegador no pasa por este túnel. Activa la extensión de navegador de tu VPN mientras inicias sesión; después ya puedes apagarla.</p>
     </details>
     <details>
       <summary>Dice que no encuentra WireGuard instalado</summary>
@@ -541,7 +542,7 @@
       <p>Ve a "Agregar o quitar programas" de Windows y busca "Claude VPN Proxy", o usa el acceso directo "Desinstalar" dentro de la carpeta "Claude VPN Proxy" del Menú Inicio. Eso quita el túnel, el proxy y los accesos directos por completo, puedes volver a instalar después sin problema.</p>
     </details>
     <details>
-      <summary>¿Esto ve o guarda lo que escribo en Claude o en Edge?</summary>
+      <summary>¿Esto ve o guarda lo que escribo en Claude?</summary>
       <p>No. Solo decide por qué camino de red sale la información, igual que cualquier VPN normal. No lee, guarda ni modifica el contenido de lo que escribes o navegas.</p>
     </details>
   </div>
@@ -549,7 +550,7 @@
   <h2><span class="num">07</span>Para quien quiera los detalles técnicos</h2>
   <details class="tech-details">
     <summary>Qué hace el instalador exactamente</summary>
-    <p>Instala el túnel WireGuard como un servicio de Windows (arranca solo, sin intervención), agrega una ruta de red con prioridad muy baja para que nadie más la use por accidente, e instala un programa pequeño propio que ata el tráfico de Claude/Edge a esa interfaz de red específica. Ese programa solo corre mientras Claude o Edge (VPN) están abiertos. El archivo <code>.conf</code> queda guardado con permisos solo para administradores, porque contiene tu clave privada. No instala ningún driver de intercepción ni toca la configuración de red del resto del sistema.</p>
+    <p>Instala el túnel WireGuard como un servicio de Windows (arranca solo, sin intervención), agrega una ruta de red con prioridad muy baja para que nadie más la use por accidente, e instala un programa pequeño propio que ata el tráfico de Claude a esa interfaz de red específica. Ese programa solo corre mientras Claude (VPN) está abierto. El archivo <code>.conf</code> queda guardado con permisos solo para administradores, porque contiene tu clave privada. No instala ningún driver de intercepción ni toca la configuración de red del resto del sistema.</p>
     <p>Todo el código es abierto y la compilación es reproducible: compilando el mismo código se obtiene exactamente el mismo instalador, byte por byte. En el repositorio están <a href="https://github.com/gsalazargb/claude-vpn-proxy-windows/blob/main/docs/LEEME-SEGURIDAD.md">qué hace cada componente y cómo verificarlo</a> y <a href="https://github.com/gsalazargb/claude-vpn-proxy-windows/blob/main/docs/COMPILAR.md">cómo compilarlo</a>.</p>
     <div class="tech-grid">
       <div><span class="k">Nombre del túnel</span><span class="v">ClaudeVPN</span></div>

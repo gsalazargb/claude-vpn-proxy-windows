@@ -19,4 +19,4 @@ x86_64-w64-mingw32-gcc $CFLAGS -mwindows -o src/claude_proxy.exe src/claude_prox
 x86_64-w64-mingw32-gcc $CFLAGS -o src/prep_conf.exe src/prep_conf.c
 (cd nsis && makensis -V2 installer.nsi)
 
-sha256sum nsis/ClaudeVPNProxySetup.exe src/claude_proxy.exe src/prep_conf.exe nsis/launch-claude.cmd nsis/launch-edge.cmd
+sha256sum nsis/ClaudeVPNProxySetup.exe src/claude_proxy.exe src/prep_conf.exe nsis/launch-claude.cmd
