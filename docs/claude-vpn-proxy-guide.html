@@ -308,6 +308,65 @@
     font-size: 14px;
   }
 
+  .download {
+    display: grid;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    margin: 0 0 8px;
+  }
+
+  .download-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-weight: 600;
+    text-decoration: none;
+    padding: 11px 18px;
+    border-radius: 10px;
+  }
+
+  .btn:hover { filter: brightness(1.06); }
+  .btn:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .version {
+    font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .download-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    font-size: 14px;
+  }
+
+  .hash {
+    font-size: 13px;
+    color: var(--muted);
+    min-width: 0;
+  }
+
+  .hash code {
+    display: block;
+    margin-top: 4px;
+    padding: 6px 8px;
+    overflow-wrap: anywhere;
+    color: var(--fg);
+  }
+
   footer {
     margin-top: 56px;
     padding-top: 18px;
@@ -329,6 +388,22 @@
   <span class="eyebrow">● Para Windows</span>
   <h1>Claude VPN Proxy</h1>
   <p class="subtitle lede">Solo Claude Desktop y Edge salen por una VPN dedicada. Todo lo demás en tu computadora sigue exactamente igual que siempre.</p>
+
+  <section class="download" aria-label="Descarga">
+    <div class="download-head">
+      <a class="btn" href="https://github.com/gsalazargb/claude-vpn-proxy-windows/releases/download/v1.0.0/ClaudeVPNProxySetup.exe">Descargar instalador</a>
+      <span class="version">v1.0.0 · pre-release · Windows 10 y 11</span>
+    </div>
+    <div class="download-links">
+      <a href="https://github.com/gsalazargb/claude-vpn-proxy-windows/releases/download/v1.0.0/ClaudeVPNProxy-Windows.zip">Paquete completo (.zip con guía y código fuente)</a>
+      <a href="https://github.com/gsalazargb/claude-vpn-proxy-windows/releases/tag/v1.0.0">Notas de la versión</a>
+      <a href="https://github.com/gsalazargb/claude-vpn-proxy-windows">Código fuente en GitHub</a>
+    </div>
+    <div class="hash">
+      SHA-256 del instalador, para confirmar que la descarga no fue alterada:
+      <code>803c0ec110310cb45a0cec9b56d78e741de2a1ed2f4c75ecd3cb244a712a4621</code>
+    </div>
+  </section>
 
   <h2><span class="num">01</span>¿Para qué es esto?</h2>
   <p>En algunas redes, Claude no logra conectarse sin usar una VPN. El problema es que prender una VPN para <em>toda</em> la computadora hace que otras aplicaciones (videollamadas, juegos, lo que sea) se vuelvan más lentas o se comporten raro, aunque no necesiten la VPN para nada.</p>
@@ -381,7 +456,7 @@
     <li><span class="tick">✓</span><span><strong>Windows 10 u 11.</strong> Vas a necesitar permisos de administrador, Windows te los va a pedir una sola vez durante la instalación.</span></li>
     <li><span class="tick">✓</span><span><strong>El cliente oficial de WireGuard instalado.</strong> Es gratis: <a href="https://www.wireguard.com/install/" target="_blank" rel="noopener">wireguard.com/install</a>. Es el programa que realmente abre la conexión VPN, nuestro instalador solo lo configura.</span></li>
     <li><span class="tick">✓</span><span><strong>Un archivo <code>.conf</code> de WireGuard.</strong> Es como la llave de acceso a un servidor VPN. Te lo da tu proveedor (por ejemplo, una cuenta gratuita de Proton VPN, sección de configuración manual / WireGuard). No tiene que ser Proton, cualquier proveedor que entregue un archivo WireGuard sirve.</span></li>
-    <li><span class="tick">✓</span><span><strong>El instalador <code>ClaudeVPNProxySetup.exe</code>.</strong> Te lo comparte quien te pasó este documento.</span></li>
+    <li><span class="tick">✓</span><span><strong>El instalador <code>ClaudeVPNProxySetup.exe</code>.</strong> Descárgalo con el botón de arriba.</span></li>
   </ul>
 
   <div class="callout warn">
@@ -407,6 +482,7 @@
       <div>
         <strong>Ejecuta <code>ClaudeVPNProxySetup.exe</code></strong>
         Si Windows pregunta si quieres permitir que la app haga cambios, acepta, es necesario para crear el túnel.
+        <span class="meta">El instalador no está firmado digitalmente, así que Windows puede mostrar "Windows protegió tu PC". Haz clic en "Más información" y luego en "Ejecutar de todas formas".</span>
       </div>
     </li>
     <li class="step">
@@ -432,6 +508,7 @@
 
   <h2><span class="num">05</span>Uso diario</h2>
   <p>Nada más que recordar: abre Claude y Edge siempre desde los accesos directos <strong>"Claude (VPN)"</strong> y <strong>"Edge (VPN)"</strong>. El resto de tu computadora, incluyendo cualquier otro navegador o programa, no cambia en absoluto.</p>
+  <p>No hay nada corriendo en segundo plano cuando no lo usas. Al abrir uno de esos accesos directos se enciende un proxy pequeño, sin ventana, y se apaga solo unos segundos después de que cierras Claude o Edge.</p>
 
   <h2><span class="num">06</span>Si algo sale mal</h2>
   <div class="faq">
@@ -446,6 +523,14 @@
     <details>
       <summary>Claude o Edge se quedan "pensando" y nunca conectan, sin ningún mensaje de error</summary>
       <p>Revisa si tienes la app de escritorio de Proton VPN (u otra VPN) abierta. Su propio firewall puede bloquear nuestro túnel sin avisar. Ciérrala por completo, icono de la bandeja incluido, y vuelve a intentar.</p>
+    </details>
+    <details>
+      <summary>Dice "No se pudo arrancar el proxy local"</summary>
+      <p>El túnel no está activo. Abre WireGuard y revisa que el túnel <code>ClaudeVPN</code> aparezca como activo. Si sigue fallando, el detalle del error está en <code>%LOCALAPPDATA%\ClaudeVPNProxy\claude_proxy.log</code>: pégalo en el Explorador de archivos para abrirlo.</p>
+    </details>
+    <details>
+      <summary>Edge (VPN) se abre pero no usa el túnel</summary>
+      <p>Si ya tenías Edge abierto, el acceso directo solo abre una ventana más de ese Edge, que no pasa por el túnel. Cierra todas las ventanas de Edge y vuelve a abrirlo con "Edge (VPN)".</p>
     </details>
     <details>
       <summary>Dice que no encuentra WireGuard instalado</summary>
@@ -464,7 +549,8 @@
   <h2><span class="num">07</span>Para quien quiera los detalles técnicos</h2>
   <details class="tech-details">
     <summary>Qué hace el instalador exactamente</summary>
-    <p>Instala el túnel WireGuard como un servicio de Windows (arranca solo, sin intervención), agrega una ruta de red con prioridad muy baja para que nadie más la use por accidente, y deja corriendo un programa pequeño propio que ata el tráfico de Claude/Edge a esa interfaz de red específica. No instala ningún driver de intercepción ni toca la configuración de red del resto del sistema.</p>
+    <p>Instala el túnel WireGuard como un servicio de Windows (arranca solo, sin intervención), agrega una ruta de red con prioridad muy baja para que nadie más la use por accidente, e instala un programa pequeño propio que ata el tráfico de Claude/Edge a esa interfaz de red específica. Ese programa solo corre mientras Claude o Edge (VPN) están abiertos. El archivo <code>.conf</code> queda guardado con permisos solo para administradores, porque contiene tu clave privada. No instala ningún driver de intercepción ni toca la configuración de red del resto del sistema.</p>
+    <p>Todo el código es abierto y la compilación es reproducible: compilando el mismo código se obtiene exactamente el mismo instalador, byte por byte. En el repositorio están <a href="https://github.com/gsalazargb/claude-vpn-proxy-windows/blob/main/docs/LEEME-SEGURIDAD.md">qué hace cada componente y cómo verificarlo</a> y <a href="https://github.com/gsalazargb/claude-vpn-proxy-windows/blob/main/docs/COMPILAR.md">cómo compilarlo</a>.</p>
     <div class="tech-grid">
       <div><span class="k">Nombre del túnel</span><span class="v">ClaudeVPN</span></div>
       <div><span class="k">Puerto del proxy local</span><span class="v">127.0.0.1:18080</span></div>
@@ -474,7 +560,7 @@
   </details>
 
   <footer>
-    Herramienta independiente. No es un producto oficial de Anthropic ni de ningún proveedor de VPN.
+    Herramienta independiente y de código abierto (<a href="https://github.com/gsalazargb/claude-vpn-proxy-windows">GitHub</a>). No es un producto oficial de Anthropic ni de ningún proveedor de VPN.
   </footer>
 
 </div>
